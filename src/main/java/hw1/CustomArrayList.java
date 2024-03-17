@@ -7,7 +7,11 @@ import java.util.Comparator;
 public class CustomArrayList<E> {
     private int size = 0;
 
-    private static final int DEFAULT_CAPACITY = 10;
+    public static final double DEFAULT_GROW_RATIO = 2;
+
+    public static final int DEFAULT_CAPACITY = 10;
+
+    public static final int DEFAULT_MIN_CAPACITY = 2;
 
     private Object[] array;
 
@@ -45,13 +49,11 @@ public class CustomArrayList<E> {
     }
 
     private void grow() {
-        int defaultMinCapacity = 2;
-        grow(defaultMinCapacity);
+        grow(DEFAULT_MIN_CAPACITY);
     }
 
     private void grow(int minCapacity) {
-        var growRatio = 2;
-        int newLength = (array.length + minCapacity) * growRatio;
+        int newLength =  (int) ((array.length + minCapacity) * DEFAULT_GROW_RATIO);
         array = Arrays.copyOf(array, newLength);
     }
 
