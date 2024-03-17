@@ -10,10 +10,6 @@ public class ArrayUtil {
             return array;
         }
 
-        if (comparator == null) {
-            comparator = Comparator.reverseOrder();
-        }
-
         Object[] result = new Object[array.length];
         Object[] left = mergeSort(Arrays.copyOfRange(array, 0, array.length / 2), comparator);
         Object[] right = mergeSort(Arrays.copyOfRange(array, array.length / 2, array.length), comparator);
