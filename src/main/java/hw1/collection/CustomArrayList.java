@@ -13,7 +13,7 @@ public class CustomArrayList<E> implements  CustomList<E>{
 
     public static final int DEFAULT_CAPACITY = 10;
 
-    public static final int DEFAULT_MIN_CAPACITY = 2;
+    public static final int DEFAULT_MIN_GROW_CAPACITY = 2;
 
     private Object[] array;
 
@@ -128,7 +128,7 @@ public class CustomArrayList<E> implements  CustomList<E>{
     }
 
     private void grow() {
-        grow(DEFAULT_MIN_CAPACITY);
+        grow(DEFAULT_MIN_GROW_CAPACITY);
     }
 
     private void grow(int minCapacity) {
