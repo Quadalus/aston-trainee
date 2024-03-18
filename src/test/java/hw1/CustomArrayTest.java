@@ -1,5 +1,7 @@
 package hw1;
 
+import hw1.collection.CustomArrayList;
+import hw1.collection.CustomList;
 import hw1.common.Person;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
@@ -14,7 +16,7 @@ public class CustomArrayTest {
     Person vova;
     Person grisha;
     Person kirill;
-    private CustomArrayList<Person> list;
+    private CustomList<Person> list;
 
     @BeforeEach
     public void performTests() {

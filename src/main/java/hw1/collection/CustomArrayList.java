@@ -1,10 +1,12 @@
-package hw1;
+package hw1.collection;
+
+import hw1.util.ArrayUtil;
 
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
 
-public class CustomArrayList<E> {
+public class CustomArrayList<E> implements  CustomList<E>{
     private int size = 0;
 
     public static final double DEFAULT_GROW_RATIO = 2;
@@ -27,6 +29,7 @@ public class CustomArrayList<E> {
         array = new Object[DEFAULT_CAPACITY];
     }
 
+    @Override
     public void add(E element) {
         if (size == array.length) {
             grow();
@@ -35,6 +38,7 @@ public class CustomArrayList<E> {
         size++;
     }
 
+    @Override
     public void add(int index, E element) {
         if (index > size || index < 0) {
             throw new ArrayIndexOutOfBoundsException("Index out of bounds");
@@ -48,15 +52,7 @@ public class CustomArrayList<E> {
         size++;
     }
 
-    private void grow() {
-        grow(DEFAULT_MIN_CAPACITY);
-    }
-
-    private void grow(int minCapacity) {
-        int newLength =  (int) ((array.length + minCapacity) * DEFAULT_GROW_RATIO);
-        array = Arrays.copyOf(array, newLength);
-    }
-
+    @Override
     public void addAll(Collection<? extends E> collection) {
         var arrayFromCollection = collection.toArray();
         if (array.length - size < arrayFromCollection.length) {
@@ -66,12 +62,14 @@ public class CustomArrayList<E> {
         size += collection.size();
     }
 
+    @Override
     public void clear() {
         array = new Object[array.length];
         size = 0;
     }
 
     @SuppressWarnings("unchecked")
+    @Override
     public E get(int index) {
         if (index >= size || index < 0) {
             throw new ArrayIndexOutOfBoundsException("Index out of bounds");
@@ -79,10 +77,12 @@ public class CustomArrayList<E> {
         return (E) array[index];
     }
 
+    @Override
     public boolean isEmpty() {
         return size == 0;
     }
 
+    @Override
     public void remove(int index) {
         var lastElementIndex = size - 1;
         if (index == lastElementIndex) {
@@ -95,6 +95,7 @@ public class CustomArrayList<E> {
         }
     }
 
+    @Override
     public void remove(Object o) {
         for (int i = 0; i < size; i++) {
             if ((i == size - 1) && o.equals(array[i])) {
@@ -108,6 +109,7 @@ public class CustomArrayList<E> {
         }
     }
 
+    @Override
     public void removeLast() {
         if (size != 0) {
             array[size - 1] = null;
@@ -115,13 +117,23 @@ public class CustomArrayList<E> {
         }
     }
 
+    @Override
     public int size() {
         return size;
     }
-
+    @Override
     public void sort(Comparator<? super E> comparator) {
         var sortedList = ArrayUtil.mergeSort(Arrays.copyOfRange(array, 0, size), comparator);
         System.arraycopy(sortedList, 0, array, 0, sortedList.length);
+    }
+
+    private void grow() {
+        grow(DEFAULT_MIN_CAPACITY);
+    }
+
+    private void grow(int minCapacity) {
+        int newLength =  (int) ((array.length + minCapacity) * DEFAULT_GROW_RATIO);
+        array = Arrays.copyOf(array, newLength);
     }
 
     @Override

@@ -1,4 +1,4 @@
-package hw1;
+package hw1.util;
 
 import java.util.Arrays;
 import java.util.Comparator;
