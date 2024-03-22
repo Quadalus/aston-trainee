@@ -3,6 +3,8 @@ package hw2.util.mapper;
 import hw2.dto.ChatDto;
 import hw2.model.Chat;
 
+import java.time.LocalDateTime;
+
 public final class ChatDtoMapper {
     private ChatDtoMapper() {
     }
@@ -11,7 +13,7 @@ public final class ChatDtoMapper {
         var chat = new Chat();
 
         chat.setTitle(chatDto.getTitle());
-        chat.setCreationOn(chatDto.getCretaionOn());
+        chat.setCreationOn(LocalDateTime.now());
         return chat;
     }
 
@@ -20,7 +22,7 @@ public final class ChatDtoMapper {
 
         chat.setId(id);
         chat.setTitle(chatDto.getTitle());
-        chat.setCreationOn(chatDto.getCretaionOn());
+        chat.setCreationOn(LocalDateTime.now());
         return chat;
     }
 
