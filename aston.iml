@@ -4,6 +4,7 @@
     <facet type="web" name="Web">
       <configuration>
         <descriptors>
+          <deploymentDescriptor name="web.xml" url="file://$MODULE_DIR$/web/web/WEB-INF/web.xml" />
           <deploymentDescriptor name="web.xml" url="file://$MODULE_DIR$/web/WEB-INF/web.xml" />
         </descriptors>
         <webroots>
@@ -31,5 +32,6 @@
     <orderEntry type="library" name="servlet-api" level="project" />
     <orderEntry type="library" name="postgresql-42.7.3" level="project" />
     <orderEntry type="library" name="fasterxml.jackson.core.databind" level="project" />
+    <orderEntry type="library" name="fasterxml.jackson.datatype.jsr310" level="project" />
   </component>
 </module>

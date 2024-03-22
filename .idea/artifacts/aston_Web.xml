@@ -1,8 +1,0 @@
-<component name="ArtifactManager">
-  <artifact type="war" name="aston:Web">
-    <output-path>$PROJECT_DIR$/out/artifacts/aston_Web</output-path>
-    <root id="archive" name="aston_Web.war">
-      <element id="artifact" artifact-name="aston:Web exploded" />
-    </root>
-  </artifact>
-</component>

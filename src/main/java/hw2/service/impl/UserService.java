@@ -1,9 +1,10 @@
-package hw2.service;
+package hw2.service.impl;
 
 import hw2.dao.impl.UserDao;
 import hw2.dto.UserDto;
 import hw2.exception.UserNotFoundException;
 import hw2.model.User;
+import hw2.service.Service;
 import hw2.util.mapper.UserDtoMapper;
 
 import java.util.List;

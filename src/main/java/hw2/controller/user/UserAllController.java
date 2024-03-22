@@ -1,7 +1,8 @@
 package hw2.controller.user;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import hw2.service.UserService;
+import hw2.service.impl.UserService;
+import hw2.util.ObjectMapperUtil;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -14,7 +15,7 @@ import java.nio.charset.StandardCharsets;
 @WebServlet("/user/all")
 public class UserAllController extends HttpServlet {
     private final UserService userService = UserService.getInstance();
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    private final ObjectMapper objectMapper = ObjectMapperUtil.getInstance();
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
