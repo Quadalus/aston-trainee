@@ -4,7 +4,7 @@ import hw2.dao.impl.UserDao;
 import hw2.dto.UserDto;
 import hw2.exception.UserNotFoundException;
 import hw2.model.User;
-import hw2.util.UserDtoMapper;
+import hw2.util.mapper.UserDtoMapper;
 
 import java.util.List;
 

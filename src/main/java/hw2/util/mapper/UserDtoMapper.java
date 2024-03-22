@@ -1,4 +1,4 @@
-package hw2.util;
+package hw2.util.mapper;
 
 import hw2.dto.UserDto;
 import hw2.model.User;
