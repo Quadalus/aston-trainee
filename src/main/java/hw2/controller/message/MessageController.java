@@ -1,9 +1,9 @@
-package hw2.controller.chat;
+package hw2.controller.message;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import hw2.dto.ChatDto;
-import hw2.service.Service;
-import hw2.service.impl.ChatServiceImpl;
+import hw2.dto.MessageDto;
+import hw2.service.MessageService;
+import hw2.service.impl.MessageServiceImpl;
 import hw2.util.ObjectMapperUtil;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -15,9 +15,9 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.stream.Collectors;
 
-@WebServlet("/chat")
-public class ChatController extends HttpServlet {
-    private final Service<ChatDto> chatService = ChatServiceImpl.getInstance();
+@WebServlet("/message")
+public class MessageController extends HttpServlet {
+    private final MessageService messageService = MessageServiceImpl.getInstance();
     private final ObjectMapper objectMapper = ObjectMapperUtil.getInstance();
 
     @Override
@@ -26,10 +26,10 @@ public class ChatController extends HttpServlet {
         resp.setCharacterEncoding(StandardCharsets.UTF_8.name());
         resp.setStatus(200);
         var id = req.getParameter("id");
-        var chatDto = chatService.findById(Long.parseLong(id));
+        var messageDto = messageService.findById(Long.parseLong(id));
 
         try (var writer = resp.getWriter()) {
-            writer.println(objectMapper.writeValueAsString(chatDto));
+            writer.println(objectMapper.writeValueAsString(messageDto));
         }
     }
 
@@ -40,8 +40,12 @@ public class ChatController extends HttpServlet {
             var json = inputStream
                     .lines()
                     .collect(Collectors.joining("\n"));
-            var chatDto = objectMapper.readValue(json, ChatDto.class);
-            writer.println(objectMapper.writeValueAsString(chatService.add(chatDto)));
+
+            var userId = Long.parseLong(req.getParameter("userId"));
+            var chatId = Long.parseLong(req.getParameter("chatId"));
+
+            var messageDto = objectMapper.readValue(json, MessageDto.class);
+            writer.println(objectMapper.writeValueAsString(messageService.add(messageDto, userId, chatId)));
 
         }
     }
@@ -50,12 +54,14 @@ public class ChatController extends HttpServlet {
     protected void doPut(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         try (var inputStream = req.getReader();
              var writer = resp.getWriter()) {
-            var id = Long.parseLong(req.getParameter("id"));
+            var messageId = Long.parseLong(req.getParameter("messageId"));
+            var userId = Long.parseLong(req.getParameter("userId"));
+            var chatId = Long.parseLong(req.getParameter("chatId"));
             var json = inputStream
                     .lines()
                     .collect(Collectors.joining("\n"));
-            var chatDto = objectMapper.readValue(json, ChatDto.class);
-            writer.println(objectMapper.writeValueAsString(chatService.update(chatDto, id)));
+            var messageDto = objectMapper.readValue(json, MessageDto.class);
+            writer.println(objectMapper.writeValueAsString(messageService.update(messageDto, messageId, userId, chatId)));
         }
     }
 
@@ -63,6 +69,6 @@ public class ChatController extends HttpServlet {
     protected void doDelete(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         resp.setStatus(200);
         var id = Long.parseLong(req.getParameter("id"));
-        chatService.deleteById(id);
+        messageService.deleteById(id);
     }
 }

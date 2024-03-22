@@ -1,23 +1,23 @@
 package hw2.service.impl;
 
-import hw2.dao.impl.ChatDao;
+import hw2.dao.Dao;
+import hw2.dao.impl.ChatDaoImpl;
 import hw2.dto.ChatDto;
-import hw2.exception.ChatNotFoundException;
-import hw2.exception.UserNotFoundException;
+import hw2.exception.EntityNotFoundException;
 import hw2.model.Chat;
 import hw2.service.Service;
 import hw2.util.mapper.ChatDtoMapper;
 
 import java.util.List;
 
-public class ChatService implements Service<ChatDto> {
-    private static final ChatService INSTANCE = new ChatService();
-    private final ChatDao chatDao = ChatDao.getInstance();
+public class ChatServiceImpl implements Service<ChatDto> {
+    private static final ChatServiceImpl INSTANCE = new ChatServiceImpl();
+    private final Dao<Long, Chat> chatDao = ChatDaoImpl.getInstance();
 
-    private ChatService() {
+    private ChatServiceImpl() {
     }
 
-    public static ChatService getInstance() {
+    public static ChatServiceImpl getInstance() {
         return INSTANCE;
     }
 
@@ -55,6 +55,6 @@ public class ChatService implements Service<ChatDto> {
 
     private Chat getChat(Long id) {
         return chatDao.findById(id)
-                .orElseThrow(() -> new ChatNotFoundException("Chat with id:%d, not found".formatted(id)));
+                .orElseThrow(() -> new EntityNotFoundException("Chat with id:%d, not found".formatted(id)));
     }
 }

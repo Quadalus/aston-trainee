@@ -1,9 +1,8 @@
-package hw2.controller.chat;
+package hw2.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import hw2.dto.ChatDto;
-import hw2.service.Service;
-import hw2.service.impl.ChatServiceImpl;
+import hw2.service.UsersChatsService;
+import hw2.service.impl.UsersChatsServiceImpl;
 import hw2.util.ObjectMapperUtil;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -14,9 +13,9 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
-@WebServlet("/chat/all")
-public class ChatAllController extends HttpServlet {
-    private final Service<ChatDto> chatService = ChatServiceImpl.getInstance();
+@WebServlet("/users/chats/all")
+public class UsersChatsController extends HttpServlet {
+    private final UsersChatsService userService = UsersChatsServiceImpl.getInstance();
     private final ObjectMapper objectMapper = ObjectMapperUtil.getInstance();
 
     @Override
@@ -24,10 +23,10 @@ public class ChatAllController extends HttpServlet {
         resp.setContentType("application/json");
         resp.setCharacterEncoding(StandardCharsets.UTF_8.name());
         resp.setStatus(200);
+        var userDto = userService.findAll();
 
-        var chatDto = chatService.findAll();
         try (var writer = resp.getWriter()) {
-            writer.println(objectMapper.writeValueAsString(chatDto));
+            writer.println(objectMapper.writeValueAsString(userDto));
         }
     }
 }

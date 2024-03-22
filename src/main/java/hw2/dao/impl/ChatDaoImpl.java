@@ -1,31 +1,33 @@
 package hw2.dao.impl;
 
 import hw2.dao.Dao;
-import hw2.model.User;
+import hw2.model.Chat;
 import hw2.util.ConnectionUtil;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-public class UserDao implements Dao<Long, User> {
-    private static final UserDao INSTANCE = new UserDao();
+public class ChatDaoImpl implements Dao<Long, Chat> {
+    private static final ChatDaoImpl INSTANCE = new ChatDaoImpl();
 
-    private UserDao() {
+    private ChatDaoImpl() {
     }
 
-    public static UserDao getInstance() {
+    public static ChatDaoImpl getInstance() {
         return INSTANCE;
     }
 
     @Override
-    public Optional<User> findById(Long id) {
+    public Optional<Chat> findById(Long id) {
         var sql = """
                 SELECT *
-                FROM users
-                WHERE user_id = ?
+                FROM chats
+                WHERE chat_id = ?
                 """;
 
         try (var open = ConnectionUtil.open();
@@ -33,27 +35,27 @@ public class UserDao implements Dao<Long, User> {
             preparedStatement.setObject(1, id);
             var resultSet = preparedStatement.executeQuery();
             resultSet.next();
-            return Optional.ofNullable(buildUser(resultSet));
+            return Optional.ofNullable(buildChat(resultSet));
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
     }
 
     @Override
-    public List<User> findAll() {
+    public List<Chat> findAll() {
         var sql = """
                 SELECT *
-                FROM users;
+                FROM chats;
                 """;
         try (var open = ConnectionUtil.open();
              var preparedStatement = open.prepareStatement(sql)) {
             var resultSet = preparedStatement.executeQuery();
 
-            var users = new ArrayList<User>();
+            var chats = new ArrayList<Chat>();
             while (resultSet.next()) {
-                users.add(buildUser(resultSet));
+                chats.add(buildChat(resultSet));
             }
-            return users;
+            return chats;
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -62,8 +64,8 @@ public class UserDao implements Dao<Long, User> {
     @Override
     public void deleteById(Long id) {
         var addSql = """
-                DELETE FROM users
-                WHERE user_id = ?;
+                DELETE FROM chats
+                WHERE chat_id = ?;
                 """;
 
         try (var open = ConnectionUtil.open();
@@ -76,16 +78,16 @@ public class UserDao implements Dao<Long, User> {
     }
 
     @Override
-    public User add(User entity) {
+    public Chat add(Chat entity) {
         var addSql = """
-                INSERT INTO users(user_email, user_name)
+                INSERT INTO chats(chat_title, chat_created_on)
                 VALUES(?, ?)
                 """;
 
         try (var open = ConnectionUtil.open();
              var preparedStatement = open.prepareStatement(addSql)) {
-            preparedStatement.setString(1, entity.getEmail());
-            preparedStatement.setString(2, entity.getUsername());
+            preparedStatement.setString(1, entity.getTitle());
+            preparedStatement.setTimestamp(2, Timestamp.valueOf(entity.getCreationOn()));
             preparedStatement.executeUpdate();
 
             var generatedKeys = preparedStatement.getGeneratedKeys();
@@ -98,18 +100,18 @@ public class UserDao implements Dao<Long, User> {
     }
 
     @Override
-    public User update(User entity) {
+    public Chat update(Chat entity) {
         var addSql = """
-                UPDATE users
-                SET user_name = ?,
-                    user_email = ?
-                WHERE user_id = ?;
+                UPDATE chats
+                SET chat_title = ?,
+                chat_created_on = ?
+                WHERE chat_id = ?;
                 """;
 
         try (var open = ConnectionUtil.open();
              var preparedStatement = open.prepareStatement(addSql)) {
-            preparedStatement.setString(1, entity.getUsername());
-            preparedStatement.setString(2, entity.getEmail());
+            preparedStatement.setString(1, entity.getTitle());
+            preparedStatement.setTimestamp(2, Timestamp.valueOf(entity.getCreationOn()));
             preparedStatement.setLong(3, entity.getId());
             preparedStatement.executeUpdate();
 
@@ -121,11 +123,11 @@ public class UserDao implements Dao<Long, User> {
         return entity;
     }
 
-    private User buildUser(ResultSet resultSet) throws SQLException {
-        return new User(
-                resultSet.getObject("user_id", Long.class),
-                resultSet.getObject("user_name", String.class),
-                resultSet.getObject("user_email", String.class)
+    private Chat buildChat(ResultSet resultSet) throws SQLException {
+        return new Chat(
+                resultSet.getObject("chat_id", Long.class),
+                resultSet.getObject("chat_title", String.class),
+                resultSet.getObject("chat_created_on", LocalDateTime.class)
         );
     }
 }

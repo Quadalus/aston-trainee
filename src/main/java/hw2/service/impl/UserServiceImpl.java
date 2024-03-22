@@ -1,23 +1,24 @@
 package hw2.service.impl;
 
-import hw2.dao.impl.UserDao;
+import hw2.dao.Dao;
+import hw2.dao.impl.UserDaoImpl;
 import hw2.dto.UserDto;
-import hw2.exception.UserNotFoundException;
+import hw2.exception.EntityNotFoundException;
 import hw2.model.User;
 import hw2.service.Service;
 import hw2.util.mapper.UserDtoMapper;
 
 import java.util.List;
 
-public class UserService implements Service<UserDto> {
-    private static final UserService INSTANCE = new UserService();
+public class UserServiceImpl implements Service<UserDto> {
+    private static final UserServiceImpl INSTANCE = new UserServiceImpl();
 
-    private final UserDao userDao = UserDao.getInstance();
+    private final Dao<Long, User> userDao = UserDaoImpl.getInstance();
 
-    private UserService() {
+    private UserServiceImpl() {
     }
 
-    public static UserService getInstance() {
+    public static UserServiceImpl getInstance() {
         return INSTANCE;
     }
 
@@ -55,6 +56,6 @@ public class UserService implements Service<UserDto> {
 
     private User getUser(Long id) {
         return userDao.findById(id)
-                .orElseThrow(() -> new UserNotFoundException("User with id:%d, not found".formatted(id)));
+                .orElseThrow(() -> new EntityNotFoundException("User with id:%d, not found".formatted(id)));
     }
 }
