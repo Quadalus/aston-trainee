@@ -7,13 +7,7 @@
         <element id="directory" name="classes">
           <element id="module-output" name="aston" />
         </element>
-        <element id="directory" name="lib">
-          <element id="library" level="project" name="fasterxml.jackson.core.databind" />
-          <element id="library" level="project" name="fasterxml.jackson.datatype.jsr310" />
-          <element id="library" level="project" name="junit.jupiter" />
-          <element id="library" level="project" name="postgresql-42.7.3" />
-          <element id="library" level="project" name="servlet-api" />
-        </element>
+        <element id="directory" name="lib" />
       </element>
     </root>
   </artifact>
