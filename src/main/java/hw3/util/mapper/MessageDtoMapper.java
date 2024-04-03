@@ -19,7 +19,7 @@ public final class MessageDtoMapper {
         message.setChat(chat);
         message.setUser(user);
         message.setText(messageDto.getMessage());
-        message.setCreationOn(LocalDateTime.now());
+        message.setCreatedOn(LocalDateTime.now());
         return message;
     }
 
@@ -34,7 +34,7 @@ public final class MessageDtoMapper {
         message.setChat(chat);
         message.setUser(user);
         message.setText(messageDto.getMessage());
-        message.setCreationOn(LocalDateTime.now());
+        message.setCreatedOn(LocalDateTime.now());
         return message;
     }
 
@@ -44,7 +44,7 @@ public final class MessageDtoMapper {
         messageDto.setMessage(message.getText());
         messageDto.setChat(ChatDtoMapper.toDto(message.getChat()));
         messageDto.setUser(UserDtoMapper.toDto(message.getUser()));
-        messageDto.setCreationOn(message.getCreationOn());
+        messageDto.setCreatedOn(message.getCreatedOn());
         return messageDto;
     }
 }

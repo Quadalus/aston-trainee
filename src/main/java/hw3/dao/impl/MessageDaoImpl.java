@@ -5,15 +5,15 @@ import hw3.dao.MessageDao;
 import hw3.model.Chat;
 import hw3.model.Message;
 import hw3.model.User;
-import hw3.util.ConnectionUtil;
+import hw3.util.SessionFactoryUtil;
+import org.hibernate.Session;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Timestamp;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+
+import static hw3.util.EntityGraphHintUtil.*;
+import static org.hibernate.graph.GraphSemantic.LOAD;
 
 public class MessageDaoImpl implements Dao<Long, Message>, MessageDao {
     private static final MessageDaoImpl INSTANCE = new MessageDaoImpl();
@@ -27,193 +27,143 @@ public class MessageDaoImpl implements Dao<Long, Message>, MessageDao {
 
     @Override
     public Optional<Message> findById(Long id) {
-        var sql = """
-                SELECT message_id, message_text, message_created_on, u.user_id, u.user_name, u.user_email, c.chat_id, c.chat_title, chat_created_on
-                FROM message m
-                JOIN chats c ON c.chat_id = m.message_chat_id
-                JOIN users u ON u.user_id = m.message_user_id
-                WHERE message_id = ?
-                """;
+        Session session = SessionFactoryUtil.open();
+        Optional<Message> message;
 
-        try (var open = ConnectionUtil.open();
-             var preparedStatement = open.prepareStatement(sql)) {
-            preparedStatement.setObject(1, id);
-            var resultSet = preparedStatement.executeQuery();
-            resultSet.next();
-            var user = buildUser(resultSet);
-            var chat = buildChat(resultSet);
-
-            return Optional.ofNullable(buildMessage(resultSet, user, chat));
-        } catch (SQLException e) {
+        try {
+            session.beginTransaction();
+            message = Optional.of(
+                    session.find(Message.class, id, Map.of(LOAD.getJakartaHintName(), getMessageWithUserAndChatHint(session)))
+            );
+            session.getTransaction().commit();
+        } catch (Exception e) {
+            session.getTransaction().rollback();
             throw new RuntimeException(e);
+        } finally {
+            session.close();
         }
+        return message;
     }
 
     @Override
     public List<Message> findAll() {
-        var sql = """
-                SELECT message_id, message_text, message_created_on, u.user_id, u.user_name, u.user_email, c.chat_id, c.chat_title, chat_created_on
-                FROM message m
-                JOIN chats c ON c.chat_id = m.message_chat_id
-                JOIN users u ON u.user_id = m.message_user_id
-                """;
+        Session session = SessionFactoryUtil.open();
+        List<Message> messages;
 
-        try (var open = ConnectionUtil.open();
-             var preparedStatement = open.prepareStatement(sql)) {
-            var resultSet = preparedStatement.executeQuery();
-            var messages = new ArrayList<Message>();
-
-            while (resultSet.next()) {
-                var user = buildUser(resultSet);
-                var chat = buildChat(resultSet);
-                messages.add(buildMessage(resultSet, user, chat));
-            }
-            return messages;
-        } catch (SQLException e) {
+        try {
+            session.beginTransaction();
+            messages = session.createQuery("SELECT m " +
+                            "FROM Message m ", Message.class)
+                    .setHint(LOAD.getJakartaHintName(), getMessageWithUserAndChatHint(session))
+                    .getResultList();
+            session.getTransaction().commit();
+        } catch (Exception e) {
+            session.getTransaction().rollback();
             throw new RuntimeException(e);
+        } finally {
+            session.close();
         }
+        return messages;
     }
 
     @Override
     public void deleteById(Long id) {
-        var addSql = """
-                DELETE FROM message
-                WHERE message_id = ?;
-                """;
+        Session session = SessionFactoryUtil.open();
 
-        try (var open = ConnectionUtil.open();
-             var preparedStatement = open.prepareStatement(addSql)) {
-            preparedStatement.setLong(1, id);
-            preparedStatement.executeUpdate();
-        } catch (SQLException e) {
+        try {
+            session.beginTransaction();
+            var message = session.get(Message.class, id);
+            if (message != null) {
+                session.remove(message);
+            }
+            session.getTransaction().commit();
+        } catch (Exception e) {
+            session.getTransaction().rollback();
             throw new RuntimeException(e);
+        } finally {
+            session.close();
         }
     }
 
     @Override
     public Message add(Message entity) {
-        var addSql = """
-                INSERT INTO message(message_text, message_user_id, message_chat_id, message_created_on)
-                VALUES(?, ?, ?, ?)
-                """;
+        Session session = SessionFactoryUtil.open();
 
-        try (var open = ConnectionUtil.open();
-             var preparedStatement = open.prepareStatement(addSql)) {
-            preparedStatement.setString(1, entity.getText());
-            preparedStatement.setLong(2, entity.getUser().getId());
-            preparedStatement.setLong(3, entity.getChat().getId());
-            preparedStatement.setTimestamp(4, Timestamp.valueOf(entity.getCreationOn()));
-            preparedStatement.executeUpdate();
-
-            var generatedKeys = preparedStatement.getGeneratedKeys();
-            generatedKeys.next();
-            entity.setId(generatedKeys.getObject("user_id", Long.class));
-        } catch (SQLException e) {
+        try {
+            session.beginTransaction();
+            session.persist(entity);
+            session.getTransaction().commit();
+        } catch (Exception e) {
+            session.getTransaction().rollback();
             throw new RuntimeException(e);
+        } finally {
+            session.close();
         }
         return entity;
     }
 
     @Override
     public Message update(Message entity) {
-        var addSql = """
-                UPDATE message
-                SET message_text = ?,
-                    message_created_on = ?
-                WHERE message_id = ?;
-                """;
+        Session session = SessionFactoryUtil.open();
 
-        try (var open = ConnectionUtil.open();
-             var preparedStatement = open.prepareStatement(addSql)) {
-            preparedStatement.setString(1, entity.getText());
-            preparedStatement.setTimestamp(2, Timestamp.valueOf(entity.getCreationOn()));
-            preparedStatement.setLong(3, entity.getId());
-            preparedStatement.executeUpdate();
-
-            var generatedKeys = preparedStatement.getGeneratedKeys();
-            generatedKeys.next();
-        } catch (SQLException e) {
+        try {
+            session.beginTransaction();
+            var message = session.get(Message.class, entity.getId());
+            message.setText(entity.getText());
+            session.getTransaction().commit();
+        } catch (Exception e) {
+            session.getTransaction().rollback();
             throw new RuntimeException(e);
+        } finally {
+            session.close();
         }
         return entity;
     }
 
     @Override
     public List<Message> findUserMessageById(Long userId) {
-        var sql = """
-                SELECT message_id, message_text,message_created_on, u.user_id, u.user_name, u.user_email, c.chat_id, c.chat_title, chat_created_on
-                FROM message m
-                JOIN chats c ON c.chat_id = m.message_chat_id
-                JOIN users u ON u.user_id = m.message_user_id
-                WHERE u.user_id = ?;
-                """;
+        Session session = SessionFactoryUtil.open();
+        List<Message> messages;
+        try {
+            session.beginTransaction();
+            messages = session.createQuery("SELECT u " +
+                    "FROM User u " +
+                    "WHERE u.id = ?1",User.class)
+                    .setParameter(1,userId)
+                    .setHint(LOAD.getJakartaHintName(), getUserMessageHint(session))
+                    .getSingleResult()
+                    .getMessages();
 
-        try (var open = ConnectionUtil.open();
-             var preparedStatement = open.prepareStatement(sql)) {
-            preparedStatement.setLong(1, userId);
-            var resultSet = preparedStatement.executeQuery();
-            var messages = new ArrayList<Message>();
-
-            while (resultSet.next()) {
-                var user = buildUser(resultSet);
-                var chat = buildChat(resultSet);
-                messages.add(buildMessage(resultSet, user, chat));
-            }
-            return messages;
-        } catch (SQLException e) {
+            session.getTransaction().commit();
+        } catch (Exception e) {
+            session.getTransaction().rollback();
             throw new RuntimeException(e);
+        } finally {
+            session.close();
         }
+        return messages;
     }
 
     @Override
     public List<Message> findChatMessageById(Long chatId) {
-        var sql = """
-                SELECT message_id, message_text,message_created_on, u.user_id, u.user_name, u.user_email, c.chat_id, c.chat_title, chat_created_on
-                FROM message m
-                JOIN chats c ON c.chat_id = m.message_chat_id
-                JOIN users u ON u.user_id = m.message_user_id
-                WHERE c.chat_id = ?;
-                """;
-
-        try (var open = ConnectionUtil.open();
-             var preparedStatement = open.prepareStatement(sql)) {
-            preparedStatement.setLong(1, chatId);
-            var resultSet = preparedStatement.executeQuery();
-            var messages = new ArrayList<Message>();
-
-            while (resultSet.next()) {
-                var user = buildUser(resultSet);
-                var chat = buildChat(resultSet);
-                messages.add(buildMessage(resultSet, user, chat));
-            }
-            return messages;
-        } catch (SQLException e) {
+        Session session = SessionFactoryUtil.open();
+        List<Message> messages;
+        try {
+            session.beginTransaction();
+            messages = session.createQuery("SELECT c " +
+                            "FROM Chat c " +
+                            "WHERE c.id = ?1", Chat.class)
+                    .setParameter(1,chatId)
+                    .setHint(LOAD.getJakartaHintName(), getChatMessageHint(session))
+                    .getSingleResult()
+                    .getMessages();
+            session.getTransaction().commit();
+        } catch (Exception e) {
+            session.getTransaction().rollback();
             throw new RuntimeException(e);
+        } finally {
+            session.close();
         }
-    }
-
-    private User buildUser(ResultSet resultSet) throws SQLException {
-        return new User(
-                resultSet.getObject("user_id", Long.class),
-                resultSet.getObject("user_name", String.class),
-                resultSet.getObject("user_email", String.class)
-        );
-    }
-
-    private Chat buildChat(ResultSet resultSet) throws SQLException {
-        return new Chat(
-                resultSet.getObject("chat_id", Long.class),
-                resultSet.getObject("chat_title", String.class),
-                resultSet.getObject("chat_created_on", LocalDateTime.class)
-        );
-    }
-
-    private Message buildMessage(ResultSet resultSet, User user, Chat chat) throws SQLException {
-        return new Message(resultSet.getObject("message_id", Long.class),
-                resultSet.getObject("message_text", String.class),
-                user,
-                chat,
-                resultSet.getObject("message_created_on", LocalDateTime.class)
-        );
+        return messages;
     }
 }

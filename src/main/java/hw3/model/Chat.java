@@ -1,65 +1,43 @@
 package hw3.model;
 
+import jakarta.persistence.*;
+import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
+
 import java.time.LocalDateTime;
-import java.util.Objects;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
-public class Chat {
-    private Long id;
+@NamedEntityGraph(name = "chatWithUsers",
+        attributeNodes = @NamedAttributeNode(value = "users")
+)
+@NamedEntityGraph(name = "chatWithMessages",
+        attributeNodes = @NamedAttributeNode(value = "messages", subgraph = "messageUser"),
+        subgraphs = @NamedSubgraph(name = "messageUser", attributeNodes =  @NamedAttributeNode("user"))
+)
+@Entity
+@Table(name = "chats")
+@Getter
+@Setter
+@ToString(exclude = "users", callSuper = true)
+@NoArgsConstructor
+@AllArgsConstructor
+@EqualsAndHashCode(exclude = "users", callSuper = true)
+public class Chat extends BaseEntity<Long> {
     private String title;
-    private LocalDateTime creationOn;
 
-    public Chat(Long id, String title, LocalDateTime creationOn) {
-        this.id = id;
-        this.title = title;
-        this.creationOn = creationOn;
-    }
+    @CreationTimestamp
+    @Column(name = "created_on")
+    private LocalDateTime createdOn;
 
-    public Chat() {
-    }
+    @ManyToMany
+    @JoinTable(name = "users_chats",
+            joinColumns = @JoinColumn(name = "chat_id"),
+            inverseJoinColumns = @JoinColumn(name = "user_id"))
+    private Set<User> users = new HashSet<>();
 
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-    public LocalDateTime getCreationOn() {
-        return creationOn;
-    }
-
-    public void setCreationOn(LocalDateTime creationOn) {
-        this.creationOn = creationOn;
-    }
-
-    @Override
-    public boolean equals(Object object) {
-        if (this == object) return true;
-        if (object == null || getClass() != object.getClass()) return false;
-        Chat chat = (Chat) object;
-        return Objects.equals(id, chat.id) && Objects.equals(title, chat.title) && Objects.equals(creationOn, chat.creationOn);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id, title, creationOn);
-    }
-
-    @Override
-    public String toString() {
-        return "Chat{" +
-                "id=" + id +
-                ", title='" + title + '\'' +
-                ", creationOn=" + creationOn +
-                '}';
-    }
+    @OneToMany(mappedBy = "chat")
+    private List<Message> messages = new ArrayList<>();
 }

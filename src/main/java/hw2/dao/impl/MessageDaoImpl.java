@@ -28,11 +28,11 @@ public class MessageDaoImpl implements Dao<Long, Message>, MessageDao {
     @Override
     public Optional<Message> findById(Long id) {
         var sql = """
-                SELECT message_id, message_text, message_created_on, u.user_id, u.user_name, u.user_email, c.chat_id, c.chat_title, chat_created_on
+                SELECT m.id, text, m.created_on, u.id, u.name, u.email, c.id, c.title, c.created_on
                 FROM message m
-                JOIN chats c ON c.chat_id = m.message_chat_id
-                JOIN users u ON u.user_id = m.message_user_id
-                WHERE message_id = ?
+                JOIN chats c ON c.id = m.chat_id
+                JOIN users u ON u.id = m.user_id
+                WHERE id = ?
                 """;
 
         try (var open = ConnectionUtil.open();
@@ -43,7 +43,7 @@ public class MessageDaoImpl implements Dao<Long, Message>, MessageDao {
             var user = buildUser(resultSet);
             var chat = buildChat(resultSet);
 
-            return Optional.ofNullable(buildMessage(resultSet, user, chat));
+            return Optional.of(buildMessage(resultSet, user, chat));
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -52,10 +52,10 @@ public class MessageDaoImpl implements Dao<Long, Message>, MessageDao {
     @Override
     public List<Message> findAll() {
         var sql = """
-                SELECT message_id, message_text, message_created_on, u.user_id, u.user_name, u.user_email, c.chat_id, c.chat_title, chat_created_on
+                SELECT m.id, text, m.created_on, u.id, u.name, u.email, c.id, c.title, c.created_on
                 FROM message m
-                JOIN chats c ON c.chat_id = m.message_chat_id
-                JOIN users u ON u.user_id = m.message_user_id
+                JOIN chats c ON c.id = m.chat_id
+                JOIN users u ON u.id = m.user_id
                 """;
 
         try (var open = ConnectionUtil.open();
@@ -78,7 +78,7 @@ public class MessageDaoImpl implements Dao<Long, Message>, MessageDao {
     public void deleteById(Long id) {
         var addSql = """
                 DELETE FROM message
-                WHERE message_id = ?;
+                WHERE id = ?;
                 """;
 
         try (var open = ConnectionUtil.open();
@@ -93,7 +93,7 @@ public class MessageDaoImpl implements Dao<Long, Message>, MessageDao {
     @Override
     public Message add(Message entity) {
         var addSql = """
-                INSERT INTO message(message_text, message_user_id, message_chat_id, message_created_on)
+                INSERT INTO message(text, id, chat_id, created_on)
                 VALUES(?, ?, ?, ?)
                 """;
 
@@ -118,9 +118,9 @@ public class MessageDaoImpl implements Dao<Long, Message>, MessageDao {
     public Message update(Message entity) {
         var addSql = """
                 UPDATE message
-                SET message_text = ?,
-                    message_created_on = ?
-                WHERE message_id = ?;
+                SET text = ?,
+                    created_on = ?
+                WHERE id = ?;
                 """;
 
         try (var open = ConnectionUtil.open();
@@ -141,11 +141,11 @@ public class MessageDaoImpl implements Dao<Long, Message>, MessageDao {
     @Override
     public List<Message> findUserMessageById(Long userId) {
         var sql = """
-                SELECT message_id, message_text,message_created_on, u.user_id, u.user_name, u.user_email, c.chat_id, c.chat_title, chat_created_on
+                SELECT m.id, text, m.created_on, u.id, u.name, u.email, c.id, c.title, c.created_on
                 FROM message m
-                JOIN chats c ON c.chat_id = m.message_chat_id
-                JOIN users u ON u.user_id = m.message_user_id
-                WHERE u.user_id = ?;
+                JOIN chats c ON c.id = m.chat_id
+                JOIN users u ON u.id = m.user_id
+                WHERE u.id = ?;
                 """;
 
         try (var open = ConnectionUtil.open();
@@ -168,11 +168,11 @@ public class MessageDaoImpl implements Dao<Long, Message>, MessageDao {
     @Override
     public List<Message> findChatMessageById(Long chatId) {
         var sql = """
-                SELECT message_id, message_text,message_created_on, u.user_id, u.user_name, u.user_email, c.chat_id, c.chat_title, chat_created_on
+                SELECT m.id, text, m.created_on, u.id, u.name, u.email, c.id, c.title, c.created_on
                 FROM message m
-                JOIN chats c ON c.chat_id = m.message_chat_id
-                JOIN users u ON u.user_id = m.message_user_id
-                WHERE c.chat_id = ?;
+                JOIN chats c ON c.id = m.chat_id
+                JOIN users u ON u.id = m.user_id
+                WHERE c.id = ?;
                 """;
 
         try (var open = ConnectionUtil.open();

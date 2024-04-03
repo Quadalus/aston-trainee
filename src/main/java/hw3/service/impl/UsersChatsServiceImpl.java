@@ -12,17 +12,17 @@ public class UsersChatsServiceImpl implements UsersChatsService {
 
     @Override
     public UsersChatsDto findAll() {
-        return UsersChatsDtoMapper.toDto(usersChatsDao.findAll());
+        return UsersChatsDtoMapper.toDtoUser(usersChatsDao.findAll());
     }
 
     @Override
     public UsersChatsDto findUserChatsById(long userId) {
-        return UsersChatsDtoMapper.toDto(usersChatsDao.findUserChatsById(userId));
+        return UsersChatsDtoMapper.toDtoUser(usersChatsDao.findUserChatsById(userId));
     }
 
     @Override
     public UsersChatsDto findChatUsersById(long chatId) {
-        return UsersChatsDtoMapper.toDto(usersChatsDao.findChatUsersById(chatId));
+        return UsersChatsDtoMapper.toDtoChat(usersChatsDao.findChatUsersById(chatId));
     }
 
     public static UsersChatsServiceImpl getInstance() {

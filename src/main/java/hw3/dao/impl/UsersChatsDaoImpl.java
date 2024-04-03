@@ -3,14 +3,14 @@ package hw3.dao.impl;
 import hw3.dao.UsersChatsDao;
 import hw3.model.Chat;
 import hw3.model.User;
-import hw3.model.UsersChats;
-import hw3.util.ConnectionUtil;
+import hw3.util.SessionFactoryUtil;
+import org.hibernate.Session;
+import org.hibernate.graph.GraphSemantic;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
+
+import static hw3.util.EntityGraphHintUtil.getChatWithUsersHint;
+import static hw3.util.EntityGraphHintUtil.getUserWithChatsHint;
 
 public class UsersChatsDaoImpl implements UsersChatsDao {
     private static final UsersChatsDaoImpl INSTANCE = new UsersChatsDaoImpl();
@@ -23,103 +23,71 @@ public class UsersChatsDaoImpl implements UsersChatsDao {
     }
 
     @Override
-    public UsersChats findAll() {
-        var sql = """
-                SELECT u.user_id, u.user_name, u.user_email, c.chat_id, c.chat_title, c.chat_created_on
-                FROM users_chats
-                JOIN chats c ON c.chat_id = users_chats.chat_id
-                JOIN users u ON u.user_id = users_chats.user_id;
-                """;
+    public List<User> findAll() {
+        Session session = SessionFactoryUtil.open();
+        List<User> user;
 
-        try (var open = ConnectionUtil.open();
-             var preparedStatement = open.prepareStatement(sql)) {
-            var resultSet = preparedStatement.executeQuery();
-
-            var users = new ArrayList<User>();
-            var chats = new ArrayList<Chat>();
-            while (resultSet.next()) {
-                users.add(buildUser(resultSet));
-                chats.add(buildChat(resultSet));
-            }
-            return buildUserChats(users, chats);
-        } catch (SQLException e) {
+        try {
+            session.beginTransaction();
+            user = session.createQuery("SELECT u FROM User u", User.class)
+                    .setHint(GraphSemantic.LOAD.getJakartaHintName(), getUserWithChatsHint(session))
+                    .getResultList();
+            session.getTransaction().commit();
+        } catch (Exception e) {
+            session.getTransaction().rollback();
             throw new RuntimeException(e);
+        } finally {
+            session.close();
         }
+        return user;
     }
 
     @Override
-    public UsersChats findUserChatsById(long userId) {
-        var sql = """
-                SELECT u.user_id, u.user_name, u.user_email, c.chat_id, c.chat_title, c.chat_created_on
-                FROM users_chats
-                JOIN chats c ON c.chat_id = users_chats.chat_id
-                JOIN users u ON u.user_id = users_chats.user_id
-                WHERE u.user_id = ?;
-                """;
+    public List<User> findUserChatsById(long userId) {
+        Session session = SessionFactoryUtil.open();
+        List<User> user;
 
-        try (var open = ConnectionUtil.open();
-             var preparedStatement = open.prepareStatement(sql)) {
-            preparedStatement.setLong(1, userId);
-            var resultSet = preparedStatement.executeQuery();
+        try {
+            session.beginTransaction();
 
-            var users = new ArrayList<User>();
-            var chats = new ArrayList<Chat>();
-            while (resultSet.next()) {
-                users.add(buildUser(resultSet));
-                chats.add(buildChat(resultSet));
-            }
-            return buildUserChats(List.of(users.getFirst()), chats);
-        } catch (SQLException e) {
+            user = session.createQuery("SELECT u " +
+                            "FROM User u " +
+                            "WHERE u.id=?1", User.class)
+                    .setHint(GraphSemantic.LOAD.getJakartaHintName(), getUserWithChatsHint(session))
+                    .setParameter(1, userId)
+                    .getResultList();
+
+            session.getTransaction().commit();
+        } catch (Exception e) {
+            session.getTransaction().rollback();
             throw new RuntimeException(e);
+        } finally {
+            session.close();
         }
+        return user;
     }
 
     @Override
-    public UsersChats findChatUsersById(long chatId) {
-        var sql = """
-                SELECT u.user_id, u.user_name, u.user_email, c.chat_id, c.chat_title, c.chat_created_on
-                FROM users_chats
-                JOIN chats c ON c.chat_id = users_chats.chat_id
-                JOIN users u ON u.user_id = users_chats.user_id
-                WHERE c.chat_id = ?;
-                """;
+    public List<Chat> findChatUsersById(long chatId) {
+        Session session = SessionFactoryUtil.open();
+        List<Chat> chat;
 
-        try (var open = ConnectionUtil.open();
-             var preparedStatement = open.prepareStatement(sql)) {
-            preparedStatement.setLong(1, chatId);
-            var resultSet = preparedStatement.executeQuery();
+        try {
+            session.beginTransaction();
 
-            var users = new ArrayList<User>();
-            var chats = new ArrayList<Chat>();
-            while (resultSet.next()) {
-                chats.add(buildChat(resultSet));
-                users.add(buildUser(resultSet));
-            }
-            return buildUserChats(users, List.of(chats.getFirst()));
-        } catch (SQLException e) {
+            chat = session.createQuery("SELECT c " +
+                            "FROM Chat c " +
+                            "WHERE c.id =?1", Chat.class)
+                    .setHint(GraphSemantic.LOAD.getJakartaHintName(), getChatWithUsersHint(session))
+                    .setParameter(1, chatId)
+                    .getResultList();
+            session.getTransaction().commit();
+        } catch (Exception e) {
+            session.getTransaction().rollback();
             throw new RuntimeException(e);
+        } finally {
+            session.close();
         }
-    }
-
-    private User buildUser(ResultSet resultSet) throws SQLException {
-        return new User(
-                resultSet.getObject("user_id", Long.class),
-                resultSet.getObject("user_name", String.class),
-                resultSet.getObject("user_email", String.class)
-        );
-    }
-
-    private Chat buildChat(ResultSet resultSet) throws SQLException {
-        return new Chat(
-                resultSet.getObject("chat_id", Long.class),
-                resultSet.getObject("chat_title", String.class),
-                resultSet.getObject("chat_created_on", LocalDateTime.class)
-        );
-    }
-
-    private UsersChats buildUserChats(List<User> users, List<Chat> chats) throws SQLException {
-        return new UsersChats(
-                users, chats
-        );
+        return chat;
     }
 }

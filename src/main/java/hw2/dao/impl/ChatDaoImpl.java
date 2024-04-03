@@ -27,7 +27,7 @@ public class ChatDaoImpl implements Dao<Long, Chat> {
         var sql = """
                 SELECT *
                 FROM chats
-                WHERE chat_id = ?
+                WHERE id = ?
                 """;
 
         try (var open = ConnectionUtil.open();
@@ -35,7 +35,7 @@ public class ChatDaoImpl implements Dao<Long, Chat> {
             preparedStatement.setObject(1, id);
             var resultSet = preparedStatement.executeQuery();
             resultSet.next();
-            return Optional.ofNullable(buildChat(resultSet));
+            return Optional.of(buildChat(resultSet));
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -65,7 +65,7 @@ public class ChatDaoImpl implements Dao<Long, Chat> {
     public void deleteById(Long id) {
         var addSql = """
                 DELETE FROM chats
-                WHERE chat_id = ?;
+                WHERE id = ?;
                 """;
 
         try (var open = ConnectionUtil.open();
@@ -80,7 +80,7 @@ public class ChatDaoImpl implements Dao<Long, Chat> {
     @Override
     public Chat add(Chat entity) {
         var addSql = """
-                INSERT INTO chats(chat_title, chat_created_on)
+                INSERT INTO chats(title, created_on)
                 VALUES(?, ?)
                 """;
 
@@ -103,9 +103,9 @@ public class ChatDaoImpl implements Dao<Long, Chat> {
     public Chat update(Chat entity) {
         var addSql = """
                 UPDATE chats
-                SET chat_title = ?,
-                chat_created_on = ?
-                WHERE chat_id = ?;
+                SET title = ?,
+                created_on = ?
+                WHERE id = ?;
                 """;
 
         try (var open = ConnectionUtil.open();

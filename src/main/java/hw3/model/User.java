@@ -1,66 +1,38 @@
 package hw3.model;
 
-import java.util.Objects;
+import jakarta.persistence.*;
+import lombok.*;
 
-public class User {
-    private Long id;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
+@NamedEntityGraph(name = "userWithChats",
+        attributeNodes = @NamedAttributeNode(value = "chats")
+)
+@NamedEntityGraph(name = "userWithMessages",
+        attributeNodes = @NamedAttributeNode(value = "messages", subgraph = "messageChat"),
+        subgraphs = @NamedSubgraph(name = "messageChat", attributeNodes =  @NamedAttributeNode("chat"))
+)
+@Entity
+@Table(name = "users")
+@Getter
+@Setter
+@ToString(exclude = "chats", callSuper = true)
+@NoArgsConstructor
+@AllArgsConstructor
+@EqualsAndHashCode(exclude = "chats", callSuper = true)
+public class User extends BaseEntity<Long> {
+    @Column(name = "name")
     private String username;
 
     private String email;
 
-    public User(Long id, String username, String email) {
-        this.id = id;
-        this.username = username;
-        this.email = email;
-    }
+    @ManyToMany(mappedBy = "users")
+    private Set<Chat> chats = new HashSet<>();
 
-    public User() {
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getUsername() {
-        return username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    @Override
-    public boolean equals(Object object) {
-        if (this == object) return true;
-        if (object == null || getClass() != object.getClass()) return false;
-        User user = (User) object;
-        return Objects.equals(id, user.id) && Objects.equals(username, user.username) && Objects.equals(email, user.email);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id, username, email);
-    }
-
-    @Override
-    public String toString() {
-        return "User{" +
-                "id=" + id +
-                ", username='" + username + '\'' +
-                ", email='" + email + '\'' +
-                '}';
-    }
+    @OneToMany(mappedBy = "user")
+    private List<Message> messages = new ArrayList<>();
 }
+

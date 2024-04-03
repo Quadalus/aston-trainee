@@ -2,11 +2,9 @@ package hw3.dao.impl;
 
 import hw3.dao.Dao;
 import hw3.model.User;
-import hw3.util.ConnectionUtil;
+import hw3.util.SessionFactoryUtil;
+import org.hibernate.Session;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -22,110 +20,93 @@ public class UserDaoImpl implements Dao<Long, User> {
 
     @Override
     public Optional<User> findById(Long id) {
-        var sql = """
-                SELECT *
-                FROM users
-                WHERE user_id = ?
-                """;
+        Session session = SessionFactoryUtil.open();
+        Optional<User> user;
 
-        try (var open = ConnectionUtil.open();
-             var preparedStatement = open.prepareStatement(sql)) {
-            preparedStatement.setObject(1, id);
-            var resultSet = preparedStatement.executeQuery();
-            resultSet.next();
-            return Optional.ofNullable(buildUser(resultSet));
-        } catch (SQLException e) {
+        try {
+            session.beginTransaction();
+            user = Optional.of(session.get(User.class, id));
+            session.getTransaction().commit();
+        } catch (Exception e) {
+            session.getTransaction().rollback();
             throw new RuntimeException(e);
+        } finally {
+            session.close();
         }
+        return user;
     }
 
     @Override
     public List<User> findAll() {
-        var sql = """
-                SELECT *
-                FROM users;
-                """;
-        try (var open = ConnectionUtil.open();
-             var preparedStatement = open.prepareStatement(sql)) {
-            var resultSet = preparedStatement.executeQuery();
+        Session session = SessionFactoryUtil.open();
+        List<User> users;
 
-            var users = new ArrayList<User>();
-            while (resultSet.next()) {
-                users.add(buildUser(resultSet));
-            }
-            return users;
-        } catch (SQLException e) {
+        try {
+            session.beginTransaction();
+            users = session.createQuery("select u From User u", User.class)
+                    .getResultList();
+            session.getTransaction().commit();
+        } catch (Exception e) {
+            session.getTransaction().rollback();
             throw new RuntimeException(e);
+        } finally {
+            session.close();
         }
+        return users;
     }
 
     @Override
     public void deleteById(Long id) {
-        var addSql = """
-                DELETE FROM users
-                WHERE user_id = ?;
-                """;
+        Session session = SessionFactoryUtil.open();
 
-        try (var open = ConnectionUtil.open();
-             var preparedStatement = open.prepareStatement(addSql)) {
-            preparedStatement.setLong(1, id);
-            preparedStatement.executeUpdate();
-        } catch (SQLException e) {
+        try {
+            session.beginTransaction();
+            var user = session.get(User.class, id);
+            if (user != null) {
+                session.remove(user);
+            }
+            session.getTransaction().commit();
+        } catch (Exception e) {
+            session.getTransaction().rollback();
             throw new RuntimeException(e);
+        } finally {
+            session.close();
         }
     }
 
     @Override
     public User add(User entity) {
-        var addSql = """
-                INSERT INTO users(user_email, user_name)
-                VALUES(?, ?)
-                """;
+        Session session = SessionFactoryUtil.open();
 
-        try (var open = ConnectionUtil.open();
-             var preparedStatement = open.prepareStatement(addSql)) {
-            preparedStatement.setString(1, entity.getEmail());
-            preparedStatement.setString(2, entity.getUsername());
-            preparedStatement.executeUpdate();
-
-            var generatedKeys = preparedStatement.getGeneratedKeys();
-            generatedKeys.next();
-            entity.setId(generatedKeys.getObject("user_id", Long.class));
-        } catch (SQLException e) {
+        try {
+            session.beginTransaction();
+            session.persist(entity);
+            session.getTransaction().commit();
+        } catch (Exception e) {
+            session.getTransaction().rollback();
             throw new RuntimeException(e);
+        } finally {
+            session.close();
         }
         return entity;
     }
 
     @Override
     public User update(User entity) {
-        var addSql = """
-                UPDATE users
-                SET user_name = ?,
-                    user_email = ?
-                WHERE user_id = ?;
-                """;
+        Session session = SessionFactoryUtil.open();
 
-        try (var open = ConnectionUtil.open();
-             var preparedStatement = open.prepareStatement(addSql)) {
-            preparedStatement.setString(1, entity.getUsername());
-            preparedStatement.setString(2, entity.getEmail());
-            preparedStatement.setLong(3, entity.getId());
-            preparedStatement.executeUpdate();
-
-            var generatedKeys = preparedStatement.getGeneratedKeys();
-            generatedKeys.next();
-        } catch (SQLException e) {
+        try {
+            session.beginTransaction();
+            var user = session.get(User.class, entity.getId());
+            user.setUsername(entity.getUsername());
+            user.setEmail(entity.getEmail());
+            session.getTransaction().commit();
+        } catch (Exception e) {
+            session.getTransaction().rollback();
             throw new RuntimeException(e);
+        } finally {
+            session.close();
         }
         return entity;
-    }
-
-    private User buildUser(ResultSet resultSet) throws SQLException {
-        return new User(
-                resultSet.getObject("user_id", Long.class),
-                resultSet.getObject("user_name", String.class),
-                resultSet.getObject("user_email", String.class)
-        );
     }
 }

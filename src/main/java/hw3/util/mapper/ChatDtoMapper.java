@@ -13,7 +13,7 @@ public final class ChatDtoMapper {
         var chat = new Chat();
 
         chat.setTitle(chatDto.getTitle());
-        chat.setCreationOn(LocalDateTime.now());
+        chat.setCreatedOn(LocalDateTime.now());
         return chat;
     }
 
@@ -22,7 +22,7 @@ public final class ChatDtoMapper {
 
         chat.setId(id);
         chat.setTitle(chatDto.getTitle());
-        chat.setCreationOn(LocalDateTime.now());
+        chat.setCreatedOn(LocalDateTime.now());
         return chat;
     }
 
@@ -30,7 +30,7 @@ public final class ChatDtoMapper {
         var chatDto = new ChatDto();
 
         chatDto.setTitle(user.getTitle());
-        chatDto.setCretaionOn(user.getCreationOn());
+        chatDto.setCreatedOn(user.getCreatedOn());
         return chatDto;
     }
 }

@@ -1,11 +1,14 @@
 package hw3.dao;
 
-import hw3.model.UsersChats;
+import hw3.model.Chat;
+import hw3.model.User;
+
+import java.util.List;
 
 public interface UsersChatsDao {
-    UsersChats findAll();
+    List<User> findAll();
 
-    UsersChats findUserChatsById(long userId);
+    List<User> findUserChatsById(long userId);
 
-    UsersChats findChatUsersById(long chatId);
+    List<Chat> findChatUsersById(long chatId);
 }

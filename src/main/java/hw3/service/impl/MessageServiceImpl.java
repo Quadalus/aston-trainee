@@ -43,7 +43,7 @@ public class MessageServiceImpl implements MessageService {
 
     @Override
     public MessageDto add(MessageDto chat, Long userId, Long chatId) {
-        var chatToAdd = MessageDtoMapper.fromDto(chat, userId, chatId, chatId);
+        var chatToAdd = MessageDtoMapper.fromDto(chat, userId, chatId);
         var savedChat = dao.add(chatToAdd);
         return MessageDtoMapper.toDto(savedChat);
     }

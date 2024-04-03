@@ -1,39 +1,58 @@
 package hw3.util.mapper;
 
 import hw3.dto.UsersChatsDto;
-import hw3.model.UsersChats;
+import hw3.model.Chat;
+import hw3.model.User;
+
+import java.util.List;
 
 public class UsersChatsDtoMapper {
     private UsersChatsDtoMapper() {
     }
 
-    public static UsersChats fromDto(UsersChatsDto usersChatsDto) {
-        var usersChats = new UsersChats();
-
-        usersChats.setChats(usersChatsDto.getChats()
-                .stream()
-                .map(ChatDtoMapper::fromDto)
-                .toList());
-
-        usersChats.setUsers(usersChatsDto.getUsers()
-                .stream()
-                .map(UserDtoMapper::fromDto)
-                .toList());
-        return usersChats;
-    }
-
-    public static UsersChatsDto toDto(UsersChats usersChats) {
+    public static UsersChatsDto toDtoUser(List<User> usersChats) {
         var usersChatsDto = new UsersChatsDto();
 
-        usersChatsDto.setChats(usersChats.getChats()
+        var chats = getChats(usersChats);
+
+        usersChatsDto.setChats(chats
                 .stream()
                 .map(ChatDtoMapper::toDto)
                 .toList());
 
-        usersChatsDto.setUsers(usersChats.getUsers()
+        usersChatsDto.setUsers(usersChats
                 .stream()
                 .map(UserDtoMapper::toDto)
                 .toList());
         return usersChatsDto;
+    }
+
+    public static UsersChatsDto toDtoChat(List<Chat> usersChats) {
+        var usersChatsDto = new UsersChatsDto();
+
+        var users = getUsers(usersChats);
+
+        usersChatsDto.setChats(usersChats
+                .stream()
+                .map(ChatDtoMapper::toDto)
+                .toList());
+
+        usersChatsDto.setUsers(users
+                .stream()
+                .map(UserDtoMapper::toDto)
+                .toList());
+        return usersChatsDto;
+    }
+
+    private static List<Chat> getChats(List<User> usersChats) {
+        return usersChats.stream()
+                .flatMap(user -> user.getChats().stream())
+                .toList();
+    }
+
+    private static List<User> getUsers(List<Chat> usersChats) {
+        return usersChats.stream()
+                .flatMap(user -> user.getUsers().stream())
+                .toList();
     }
 }
