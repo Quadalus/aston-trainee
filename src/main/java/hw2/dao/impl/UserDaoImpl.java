@@ -25,7 +25,7 @@ public class UserDaoImpl implements Dao<Long, User> {
         var sql = """
                 SELECT *
                 FROM users
-                WHERE user_id = ?
+                WHERE id = ?
                 """;
 
         try (var open = ConnectionUtil.open();
@@ -33,7 +33,7 @@ public class UserDaoImpl implements Dao<Long, User> {
             preparedStatement.setObject(1, id);
             var resultSet = preparedStatement.executeQuery();
             resultSet.next();
-            return Optional.ofNullable(buildUser(resultSet));
+            return Optional.of(buildUser(resultSet));
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -63,7 +63,7 @@ public class UserDaoImpl implements Dao<Long, User> {
     public void deleteById(Long id) {
         var addSql = """
                 DELETE FROM users
-                WHERE user_id = ?;
+                WHERE id = ?;
                 """;
 
         try (var open = ConnectionUtil.open();
@@ -78,7 +78,7 @@ public class UserDaoImpl implements Dao<Long, User> {
     @Override
     public User add(User entity) {
         var addSql = """
-                INSERT INTO users(user_email, user_name)
+                INSERT INTO users(email, name)
                 VALUES(?, ?)
                 """;
 
@@ -101,9 +101,9 @@ public class UserDaoImpl implements Dao<Long, User> {
     public User update(User entity) {
         var addSql = """
                 UPDATE users
-                SET user_name = ?,
-                    user_email = ?
-                WHERE user_id = ?;
+                SET name = ?,
+                    email = ?
+                WHERE id = ?;
                 """;
 
         try (var open = ConnectionUtil.open();

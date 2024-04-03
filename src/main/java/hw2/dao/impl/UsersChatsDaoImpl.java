@@ -25,10 +25,10 @@ public class UsersChatsDaoImpl implements UsersChatsDao {
     @Override
     public UsersChats findAll() {
         var sql = """
-                SELECT u.user_id, u.user_name, u.user_email, c.chat_id, c.chat_title, c.chat_created_on
+                SELECT u.id, u.name, u.email, c.id, c.title, c.created_on
                 FROM users_chats
-                JOIN chats c ON c.chat_id = users_chats.chat_id
-                JOIN users u ON u.user_id = users_chats.user_id;
+                JOIN chats c ON c.id = users_chats.chat_id
+                JOIN users u ON u.id = users_chats.user_id
                 """;
 
         try (var open = ConnectionUtil.open();
@@ -50,11 +50,11 @@ public class UsersChatsDaoImpl implements UsersChatsDao {
     @Override
     public UsersChats findUserChatsById(long userId) {
         var sql = """
-                SELECT u.user_id, u.user_name, u.user_email, c.chat_id, c.chat_title, c.chat_created_on
+                SELECT u.id, u.name, u.email, c.id, c.title, c.created_on
                 FROM users_chats
-                JOIN chats c ON c.chat_id = users_chats.chat_id
-                JOIN users u ON u.user_id = users_chats.user_id
-                WHERE u.user_id = ?;
+                JOIN chats c ON c.id = users_chats.chat_id
+                JOIN users u ON u.id = users_chats.user_id
+                WHERE u.id = ?;
                 """;
 
         try (var open = ConnectionUtil.open();
@@ -77,11 +77,11 @@ public class UsersChatsDaoImpl implements UsersChatsDao {
     @Override
     public UsersChats findChatUsersById(long chatId) {
         var sql = """
-                SELECT u.user_id, u.user_name, u.user_email, c.chat_id, c.chat_title, c.chat_created_on
+                SELECT u.id, u.name, u.email, c.id, c.title, c.created_on
                 FROM users_chats
-                JOIN chats c ON c.chat_id = users_chats.chat_id
-                JOIN users u ON u.user_id = users_chats.user_id
-                WHERE c.chat_id = ?;
+                JOIN chats c ON c.id = users_chats.chat_id
+                JOIN users u ON u.id = users_chats.user_id
+                WHERE c.id = ?;
                 """;
 
         try (var open = ConnectionUtil.open();
