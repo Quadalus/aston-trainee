@@ -68,7 +68,7 @@ public class UsersChatsDaoImpl implements UsersChatsDao {
                 users.add(buildUser(resultSet));
                 chats.add(buildChat(resultSet));
             }
-            return buildUserChats(List.of(users.getFirst()), chats);
+            return buildUserChats(List.of(users.get(0)), chats);
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -95,7 +95,7 @@ public class UsersChatsDaoImpl implements UsersChatsDao {
                 chats.add(buildChat(resultSet));
                 users.add(buildUser(resultSet));
             }
-            return buildUserChats(users, List.of(chats.getFirst()));
+            return buildUserChats(users, List.of(chats.get(0)));
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }

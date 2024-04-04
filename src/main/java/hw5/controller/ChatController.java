@@ -1,11 +1,12 @@
-package hw4.controller;
+package hw5.controller;
 
-import hw4.dto.ChatDto;
-import hw4.dto.MessageDto;
-import hw4.dto.UsersChatsDto;
-import hw4.service.CommonService;
-import hw4.service.MessageService;
-import hw4.service.UsersChatsService;
+import hw5.dto.ChatDto;
+import hw5.dto.MessageDto;
+import hw5.dto.UsersChatsDto;
+import hw5.service.CommonService;
+import hw5.service.MessageService;
+import hw5.service.UsersChatsService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -15,6 +16,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/chat")
 @RequiredArgsConstructor
+@Tag(name="Чат", description="Получение чата, его пользователей и его сообщений")
 public class ChatController {
     private final CommonService<ChatDto> chatServiceImpl;
     private final MessageService messageService;
@@ -25,7 +27,6 @@ public class ChatController {
     public ChatDto getUserById(@RequestParam("id") Long id) {
         return chatServiceImpl.findById(id);
     }
-
 
     @PostMapping
     @ResponseStatus(HttpStatus.OK)

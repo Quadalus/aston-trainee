@@ -16,7 +16,7 @@ import java.util.Properties;
 
 @Configuration
 @EnableTransactionManagement
-@PropertySource("classpath:application.properties")
+@PropertySource("classpath:application.yaml")
 @RequiredArgsConstructor
 public class HibernateConfig {
     private final Environment env;
