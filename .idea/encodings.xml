@@ -4,6 +4,7 @@
     <file url="file://$PROJECT_DIR$/aston-hibernate/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/aston-hibernate/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/java/hw4/config/SpringMvcConfiguration.java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/src/main/resources" charset="UTF-8" />
   </component>
 </project>
