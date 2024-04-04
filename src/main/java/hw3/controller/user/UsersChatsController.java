@@ -1,4 +1,4 @@
-package hw3.controller;
+package hw3.controller.user;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import hw3.service.UsersChatsService;
