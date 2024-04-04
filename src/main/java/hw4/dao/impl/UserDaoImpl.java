@@ -19,7 +19,7 @@ public class UserDaoImpl implements Dao<Long, User> {
     public Optional<User> findById(Long id) {
         Session session = sessionFactory.getCurrentSession();
 
-        return Optional.of(session.get(User.class, id));
+        return Optional.ofNullable(session.get(User.class, id));
     }
 
     @Override

@@ -19,7 +19,7 @@ public class ChatDaoImpl implements Dao<Long, Chat> {
     public Optional<Chat> findById(Long id) {
         Session session = sessionFactory.getCurrentSession();
 
-        return Optional.of(session.find(Chat.class, id));
+        return Optional.ofNullable(session.find(Chat.class, id));
     }
 
     @Override

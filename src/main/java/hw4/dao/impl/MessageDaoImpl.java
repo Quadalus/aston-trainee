@@ -26,7 +26,7 @@ public class MessageDaoImpl implements Dao<Long, Message>, MessageDao {
     public Optional<Message> findById(Long id) {
         Session session = sessionFactory.getCurrentSession();
 
-        return Optional.of(
+        return Optional.ofNullable(
                 session.find(Message.class, id, Map.of(LOAD.getJakartaHintName(),
                         getMessageWithUserAndChatHint(session))));
     }

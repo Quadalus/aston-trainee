@@ -2,7 +2,7 @@ package hw4.config;
 
 import org.springframework.web.servlet.support.AbstractAnnotationConfigDispatcherServletInitializer;
 
-public class SpringMvcInitConfiguration extends AbstractAnnotationConfigDispatcherServletInitializer {
+public class SpringMvcInit extends AbstractAnnotationConfigDispatcherServletInitializer {
     @Override
     protected Class<?>[] getRootConfigClasses() {
         return null;
@@ -10,7 +10,7 @@ public class SpringMvcInitConfiguration extends AbstractAnnotationConfigDispatch
 
     @Override
     protected Class<?>[] getServletConfigClasses() {
-        return new Class[] {SpringConfiguration.class};
+        return new Class[] {SpringMvcConfiguration.class};
     }
 
     @Override
