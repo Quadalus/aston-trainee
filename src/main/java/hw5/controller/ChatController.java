@@ -9,11 +9,12 @@ import hw5.service.UsersChatsService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@RestController
+@Component
 @RequestMapping("/chat")
 @RequiredArgsConstructor
 @Tag(name="Чат", description="Получение чата, его пользователей и его сообщений")
@@ -24,32 +25,32 @@ public class ChatController {
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    public ChatDto getUserById(@RequestParam("id") Long id) {
+    public ChatDto getChatById(@RequestParam("id") Long id) {
         return chatServiceImpl.findById(id);
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.OK)
-    public ChatDto addUser(@RequestBody() ChatDto chatDto) {
+    public ChatDto addChat(@RequestBody() ChatDto chatDto) {
         return chatServiceImpl.add(chatDto);
     }
 
     @PutMapping
     @ResponseStatus(HttpStatus.OK)
-    public ChatDto updateUser(@RequestParam("id") Long id,
+    public ChatDto updateChat(@RequestParam("id") Long id,
                               @RequestBody() ChatDto chatDto) {
         return chatServiceImpl.update(chatDto, id);
     }
 
     @DeleteMapping
     @ResponseStatus(HttpStatus.OK)
-    public void deleteUserById(@RequestParam("id") Long id) {
+    public void deleteChatById(@RequestParam("id") Long id) {
         chatServiceImpl.deleteById(id);
     }
 
     @GetMapping("/all")
     @ResponseStatus(HttpStatus.OK)
-    public List<ChatDto> getUserById() {
+    public List<ChatDto> getAllChat() {
         return chatServiceImpl.findAll();
     }
 

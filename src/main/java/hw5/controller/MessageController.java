@@ -18,13 +18,13 @@ public class MessageController {
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    public MessageDto getUserById(@RequestParam("id") Long id) {
+    public MessageDto getMessageById(@RequestParam("id") Long id) {
         return messageService.findById(id);
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.OK)
-    public MessageDto addUser(@RequestParam("userId") Long userId,
+    public MessageDto addMessage(@RequestParam("userId") Long userId,
                               @RequestParam("chatId") Long chatId,
                               @RequestBody() MessageDto userDto) {
         return messageService.add(userDto, userId, chatId);
@@ -32,7 +32,7 @@ public class MessageController {
 
     @PutMapping
     @ResponseStatus(HttpStatus.OK)
-    public MessageDto updateUser(@RequestParam("messageId") Long messageId,
+    public MessageDto updateMessage(@RequestParam("messageId") Long messageId,
                                  @RequestParam("userId") Long userId,
                                  @RequestParam("chatId") Long chatId,
                               @RequestBody() MessageDto userDto) {
@@ -41,13 +41,13 @@ public class MessageController {
 
     @DeleteMapping
     @ResponseStatus(HttpStatus.OK)
-    public void deleteUserById(@RequestParam("id") Long id) {
+    public void deleteMessage(@RequestParam("id") Long id) {
         messageService.deleteById(id);
     }
 
     @GetMapping("/all")
     @ResponseStatus(HttpStatus.OK)
-    public List<MessageDto> getUserById() {
+    public List<MessageDto> getAllMessages() {
         return messageService.findAll();
     }
 }
